@@ -33,3 +33,43 @@ pub struct Args {
     #[arg(long)]
     pub macos_bundle_id: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_defaults() {
+        let args = Args::parse_from(["rusty_pomo"]);
+        assert_eq!(args.focus, 25);
+        assert_eq!(args.short, 5);
+        assert_eq!(args.long, 15);
+        assert_eq!(args.long_every, 4);
+        assert!(args.notifications);
+        assert_eq!(args.notification_seconds, 10);
+    }
+
+    #[test]
+    fn parses_overrides() {
+        let args = Args::parse_from([
+            "rusty_pomo",
+            "--focus",
+            "50",
+            "--short",
+            "10",
+            "--long",
+            "20",
+            "--long-every",
+            "3",
+            "--notifications=false",
+            "--notification-seconds",
+            "15",
+        ]);
+        assert_eq!(args.focus, 50);
+        assert_eq!(args.short, 10);
+        assert_eq!(args.long, 20);
+        assert_eq!(args.long_every, 3);
+        assert!(!args.notifications);
+        assert_eq!(args.notification_seconds, 15);
+    }
+}

@@ -101,3 +101,71 @@ impl AppState {
         maybe_notify(self);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_args() -> Args {
+        Args {
+            focus: 1,
+            short: 1,
+            long: 2,
+            long_every: 2,
+            theme: Theme::Dracula,
+            notifications: false,
+            notification_sound: None,
+            notification_seconds: 1,
+            macos_bundle_id: None,
+        }
+    }
+
+    #[test]
+    fn progress_and_remaining_are_correct() {
+        let args = make_args();
+        let mut app = AppState::new(args);
+        let start = Instant::now();
+        app.phase_started_at = start - Duration::from_secs(30);
+        let now = start;
+        let progress = app.progress(now);
+        let remaining = app.time_remaining(now);
+        assert!(progress > 0.49 && progress < 0.51, "progress was {progress}");
+        assert_eq!(remaining.as_secs(), 30);
+    }
+
+    #[test]
+    fn short_then_focus_transition() {
+        let args = make_args();
+        let mut app = AppState::new(args);
+        assert_eq!(app.current_phase.kind, PhaseKind::Focus);
+        app.advance_phase();
+        assert_eq!(app.current_phase.kind, PhaseKind::ShortBreak);
+        app.advance_phase();
+        assert_eq!(app.current_phase.kind, PhaseKind::Focus);
+    }
+
+    #[test]
+    fn long_break_after_two_focus_sessions() {
+        let args = make_args();
+        let mut app = AppState::new(args);
+        // Focus -> ShortBreak
+        app.advance_phase();
+        // ShortBreak -> Focus
+        app.advance_phase();
+        // Focus -> LongBreak (second focus completed)
+        app.advance_phase();
+        assert_eq!(app.current_phase.kind, PhaseKind::LongBreak);
+    }
+
+    #[test]
+    fn paused_freezes_elapsed_time() {
+        let args = make_args();
+        let mut app = AppState::new(args);
+        let start = Instant::now();
+        app.phase_started_at = start;
+        app.paused = true;
+        app.paused_at = Some(start + Duration::from_secs(10));
+        let later = start + Duration::from_secs(1000);
+        assert_eq!(app.elapsed_in_phase(later).as_secs(), 10);
+    }
+}

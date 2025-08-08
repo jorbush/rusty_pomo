@@ -71,9 +71,23 @@ pub fn draw(frame: &mut Frame, app: &AppState) {
     frame.render_widget(help, chunks[2]);
 }
 
-fn format_mm_ss(d: std::time::Duration) -> String {
+pub fn format_mm_ss(d: std::time::Duration) -> String {
     let total = d.as_secs();
     let minutes = total / 60;
     let seconds = total % 60;
     format!("{minutes:02}:{seconds:02}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Duration;
+
+    #[test]
+    fn formats_mm_ss() {
+        assert_eq!(format_mm_ss(Duration::from_secs(0)), "00:00");
+        assert_eq!(format_mm_ss(Duration::from_secs(59)), "00:59");
+        assert_eq!(format_mm_ss(Duration::from_secs(60)), "01:00");
+        assert_eq!(format_mm_ss(Duration::from_secs(125)), "02:05");
+    }
 }
