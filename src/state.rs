@@ -1,8 +1,8 @@
 use std::time::{Duration, Instant};
 
 use crate::args::Args;
-use crate::theme::Theme;
 use crate::notifications::maybe_notify;
+use crate::theme::Theme;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PhaseKind {
@@ -31,7 +31,10 @@ pub struct AppState {
 impl AppState {
     pub fn new(args: Args) -> Self {
         let theme = args.theme;
-        let current_phase = Phase { kind: PhaseKind::Focus, duration: Duration::from_secs(args.focus * 60) };
+        let current_phase = Phase {
+            kind: PhaseKind::Focus,
+            duration: Duration::from_secs(args.focus * 60),
+        };
         Self {
             args,
             theme,
@@ -45,14 +48,18 @@ impl AppState {
 
     pub fn elapsed_in_phase(&self, now: Instant) -> Duration {
         if self.paused {
-            if let Some(paused_at) = self.paused_at { return paused_at.saturating_duration_since(self.phase_started_at); }
+            if let Some(paused_at) = self.paused_at {
+                return paused_at.saturating_duration_since(self.phase_started_at);
+            }
             return Duration::from_secs(0);
         }
         now.saturating_duration_since(self.phase_started_at)
     }
 
     pub fn time_remaining(&self, now: Instant) -> Duration {
-        self.current_phase.duration.saturating_sub(self.elapsed_in_phase(now))
+        self.current_phase
+            .duration
+            .saturating_sub(self.elapsed_in_phase(now))
     }
 
     pub fn progress(&self, now: Instant) -> f64 {
@@ -88,14 +95,27 @@ impl AppState {
         let next_kind = match self.current_phase.kind {
             PhaseKind::Focus => {
                 self.session_index += 1;
-                if self.session_index % self.args.long_every == 0 { PhaseKind::LongBreak } else { PhaseKind::ShortBreak }
+                if self.session_index % self.args.long_every == 0 {
+                    PhaseKind::LongBreak
+                } else {
+                    PhaseKind::ShortBreak
+                }
             }
             PhaseKind::ShortBreak | PhaseKind::LongBreak => PhaseKind::Focus,
         };
         self.current_phase = match next_kind {
-            PhaseKind::Focus => Phase { kind: PhaseKind::Focus, duration: Duration::from_secs(self.args.focus * 60) },
-            PhaseKind::ShortBreak => Phase { kind: PhaseKind::ShortBreak, duration: Duration::from_secs(self.args.short * 60) },
-            PhaseKind::LongBreak => Phase { kind: PhaseKind::LongBreak, duration: Duration::from_secs(self.args.long * 60) },
+            PhaseKind::Focus => Phase {
+                kind: PhaseKind::Focus,
+                duration: Duration::from_secs(self.args.focus * 60),
+            },
+            PhaseKind::ShortBreak => Phase {
+                kind: PhaseKind::ShortBreak,
+                duration: Duration::from_secs(self.args.short * 60),
+            },
+            PhaseKind::LongBreak => Phase {
+                kind: PhaseKind::LongBreak,
+                duration: Duration::from_secs(self.args.long * 60),
+            },
         };
         self.reset_phase();
         maybe_notify(self);
@@ -129,7 +149,10 @@ mod tests {
         let now = start;
         let progress = app.progress(now);
         let remaining = app.time_remaining(now);
-        assert!(progress > 0.49 && progress < 0.51, "progress was {progress}");
+        assert!(
+            progress > 0.49 && progress < 0.51,
+            "progress was {progress}"
+        );
         assert_eq!(remaining.as_secs(), 30);
     }
 

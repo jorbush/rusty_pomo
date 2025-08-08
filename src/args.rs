@@ -1,9 +1,13 @@
-use clap::{Parser};
+use clap::Parser;
 
 use crate::theme::Theme;
 
 #[derive(Parser, Debug)]
-#[command(name = "rusty_pomo", about = "Minimalist, visually pleasing Pomodoro CLI", version)]
+#[command(
+    name = "rusty_pomo",
+    about = "Minimalist, visually pleasing Pomodoro CLI",
+    version
+)]
 pub struct Args {
     /// Focus minutes
     #[arg(short = 'f', long, default_value_t = 25)]

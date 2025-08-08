@@ -5,8 +5,8 @@ mod state;
 mod theme;
 mod ui;
 
-use std::io;
 use clap::Parser;
+use std::io;
 
 use crate::args::Args;
 use crate::notifications::maybe_init_macos_bundle;

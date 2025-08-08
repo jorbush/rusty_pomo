@@ -1,8 +1,8 @@
+use ratatui::Frame;
 use ratatui::layout::{Alignment, Constraint, Direction, Layout};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Block, Borders, Gauge, Paragraph, Wrap};
-use ratatui::Frame;
 
 use crate::state::{AppState, PhaseKind};
 
@@ -25,11 +25,23 @@ pub fn draw(frame: &mut Frame, app: &AppState) {
         PhaseKind::LongBreak => ("Long Break", ok),
     };
     let header = Paragraph::new(Line::from(vec![
-        Span::styled("Rusty Pomo · ", Style::default().fg(Color::Gray).add_modifier(Modifier::BOLD)),
-        Span::styled(title.0, Style::default().fg(title.1).add_modifier(Modifier::BOLD)),
+        Span::styled(
+            "Rusty Pomo · ",
+            Style::default()
+                .fg(Color::Gray)
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(
+            title.0,
+            Style::default().fg(title.1).add_modifier(Modifier::BOLD),
+        ),
     ]))
     .alignment(Alignment::Center)
-    .block(Block::default().borders(Borders::BOTTOM).border_style(Style::default().fg(Color::DarkGray)));
+    .block(
+        Block::default()
+            .borders(Borders::BOTTOM)
+            .border_style(Style::default().fg(Color::DarkGray)),
+    );
     frame.render_widget(header, chunks[0]);
 
     // Timer + Gauge
@@ -39,7 +51,12 @@ pub fn draw(frame: &mut Frame, app: &AppState) {
     let gauge = Gauge::default()
         .gauge_style(Style::default().fg(title.1))
         .ratio(progress)
-        .label(Span::styled(timer_text, Style::default().fg(Color::White).add_modifier(Modifier::BOLD)));
+        .label(Span::styled(
+            timer_text,
+            Style::default()
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD),
+        ));
     let gauge_block = Block::default()
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::DarkGray))
@@ -48,18 +65,16 @@ pub fn draw(frame: &mut Frame, app: &AppState) {
     frame.render_widget(gauge, chunks[1]);
 
     // Footer / Help
-    let help = Paragraph::new(vec![
-        Line::from(vec![
-            Span::styled("␣ ", Style::default().fg(Color::Gray)),
-            Span::styled("pause/resume  ", Style::default().fg(Color::White)),
-            Span::styled("n ", Style::default().fg(Color::Gray)),
-            Span::styled("next  ", Style::default().fg(Color::White)),
-            Span::styled("r ", Style::default().fg(Color::Gray)),
-            Span::styled("reset  ", Style::default().fg(Color::White)),
-            Span::styled("q ", Style::default().fg(Color::Gray)),
-            Span::styled("quit", Style::default().fg(Color::White)),
-        ]),
-    ])
+    let help = Paragraph::new(vec![Line::from(vec![
+        Span::styled("␣ ", Style::default().fg(Color::Gray)),
+        Span::styled("pause/resume  ", Style::default().fg(Color::White)),
+        Span::styled("n ", Style::default().fg(Color::Gray)),
+        Span::styled("next  ", Style::default().fg(Color::White)),
+        Span::styled("r ", Style::default().fg(Color::Gray)),
+        Span::styled("reset  ", Style::default().fg(Color::White)),
+        Span::styled("q ", Style::default().fg(Color::Gray)),
+        Span::styled("quit", Style::default().fg(Color::White)),
+    ])])
     .wrap(Wrap { trim: true })
     .alignment(Alignment::Center)
     .block(
