@@ -1,12 +1,11 @@
 use std::path::Path;
 use std::time::Duration;
-
 use notify_rust::Notification;
 #[cfg(target_os = "macos")]
 use notify_rust::set_application;
-
 use crate::state::{AppState, PhaseKind};
 
+#[allow(unused_variables)] // Because it's only used on macOS
 pub fn maybe_init_macos_bundle(args: &crate::args::Args) {
     #[cfg(target_os = "macos")]
     if let Some(bundle_id) = &args.macos_bundle_id {
